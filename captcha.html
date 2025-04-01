@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fake CAPTCHA Verification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5f5;
+      }
+
+      .captcha-container {
+        width: 304px;
+        border-radius: 3px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        padding: 15px;
+      }
+
+      .captcha-checkbox-container {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .checkbox-wrapper {
+        width: 28px;
+        height: 28px;
+        border: 2px solid #c1c1c1;
+        border-radius: 2px;
+        margin-right: 12px;
+        position: relative;
+        transition: border-color 0.2s;
+      }
+
+      .checkbox-wrapper:hover {
+        border-color: #b2b2b2;
+      }
+
+      .checkbox-wrapper.checked {
+        background-color: #4caf50;
+        border-color: #4caf50;
+      }
+
+      .checkmark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 18px;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .checkmark.visible {
+        opacity: 1;
+      }
+
+      .captcha-text {
+        font-size: 14px;
+        color: #000;
+      }
+
+      .recaptcha-logo {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 15px;
+      }
+
+      .recaptcha-logo img {
+        height: 40px;
+      }
+
+      .verification-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      .verification-animation.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #4285f4;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      .verification-text {
+        font-size: 18px;
+        color: #4285f4;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .privacy-terms {
+        text-align: right;
+        margin-top: 5px;
+        font-size: 10px;
+        color: #555;
+      }
+
+      .privacy-terms a {
+        color: #555;
+        text-decoration: none;
+      }
+
+      .privacy-terms a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="captcha-container">
+      <div class="captcha-checkbox-container" id="captchaCheckbox">
+        <div class="checkbox-wrapper" id="checkboxWrapper">
+          <span class="checkmark" id="checkmark">✓</span>
+        </div>
+        <span class="captcha-text">I'm not a robot</span>
+      </div>
+      <div class="recaptcha-logo">
+        <div>
+          <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA logo" />
+          <div class="privacy-terms">
+            <a href="#" onclick="return false;">Privacy</a> -
+            <a href="#" onclick="return false;">Terms</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verification-animation" id="verificationAnimation">
+      <div class="spinner"></div>
+      <div class="verification-text">Verifying...</div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const captchaCheckbox = document.getElementById("captchaCheckbox");
+        const checkboxWrapper = document.getElementById("checkboxWrapper");
+        const checkmark = document.getElementById("checkmark");
+        const verificationAnimation = document.getElementById("verificationAnimation");
+
+        let isVerified = false;
+
+        captchaCheckbox.addEventListener("click", function () {
+          if (isVerified) return;
+
+          // Show verification animation
+          verificationAnimation.classList.add("active");
+
+          // Simulate verification process
+          setTimeout(function () {
+            verificationAnimation.classList.remove("active");
+
+            // Show success state
+            checkboxWrapper.classList.add("checked");
+            checkmark.classList.add("visible");
+            isVerified = true;
+
+            // Trigger a custom event that can be listened to by parent applications
+            const verificationEvent = new CustomEvent("captchaVerified", {
+              detail: {
+                success: true,
+                token: "fake-captcha-token-" + Math.random().toString(36).substring(2)
+              }
+            });
+            document.dispatchEvent(verificationEvent);
+
+            console.log("CAPTCHA verification successful (simulated)");
+          }, 1500);
+        });
+      });
+    </script>
+  </body>
+</html>

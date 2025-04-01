@@ -1,0 +1,32 @@
+div.mod-languages ul {
+	margin: 0;
+	padding: 0;
+	list-style:none;
+}
+div.mod-languages li {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+div.mod-languages ul.lang-inline li {
+	display:inline;
+}
+
+div.mod-languages ul.lang-block li {
+	display:block;
+}
+
+div.mod-languages img {
+	border:none;
+    opacity:0.5;
+    filter:alpha(opacity=50);
+}
+
+div.mod-languages ul .lang-active a img {
+    opacity:1.0;
+    filter:alpha(opacity=100);
+}
+
+div.mod-languages a {
+	text-decoration: none;
+}

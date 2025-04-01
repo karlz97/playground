@@ -1,0 +1,17 @@
+{
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "htmlWhitespaceSensitivity": "css",
+  "endOfLine": "lf",
+  "embeddedLanguageFormatting": "auto",
+  "plugins": ["@prettier/plugin-xml", "prettier-plugin-organize-attributes"],
+  "xmlWhitespaceSensitivity": "ignore",
+  "organizeAttributes": true,
+  "attributeGroups": ["^class$", "^id$", "^name$", "^data-", "^src$", "^for$", "^type$", "^href$", "^value$", "^title$", "^alt$", "^role$", "^aria-", "^tabindex$", "^style$"]
+} 

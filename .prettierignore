@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+bower_components/
+
+# Build output
+dist/
+build/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Specific directories
+Controllo certificazioni - UNIDARC_files/
+
+# Mac files
+.DS_Store 
