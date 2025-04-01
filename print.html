@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stampa Certificazione</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    #content {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #loadingMessage {
+      margin-top: 20px;
+      color: #666;
+    }
+    #error-message {
+      color: red;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <h1>Università per Stranieri "Dante Alighieri"</h1>
+    <h2>Stampa Certificazione</h2>
+    <div id="error-message" style="display: none;">
+      <h1>Errore</h1>
+      <p>Nessun dato certificativo trovato. Tornare alla <a href="index.html">pagina di ricerca</a>.</p>
+    </div>
+    <div id="certificate-content">
+      <p>Fare clic sul pulsante per generare il PDF della certificazione.</p>
+      <button id="generatePdfBtn">Genera PDF</button>
+      <div id="loadingMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Try to get data from the DOM
+      let certificateData = getDataFromDOM();
+      
+      // If not found in DOM, try sessionStorage
+      if (!certificateData) {
+        try {
+          certificateData = JSON.parse(sessionStorage.getItem('certificateData'));
+        } catch (e) {
+          console.error('Error parsing session storage data:', e);
+        }
+      }
+      
+      if (!certificateData) {
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('certificate-content').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('generatePdfBtn').addEventListener('click', function() {
+        generatePDF(certificateData);
+      });
+
+      // Auto-generate PDF if parameter is set
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('auto') === 'true') {
+        document.getElementById('loadingMessage').textContent = 'Generazione automatica del PDF in corso...';
+        setTimeout(() => {
+          generatePDF(certificateData);
+        }, 500);
+      }
+    });
+
+    // Function to extract certificate data from DOM elements
+    function getDataFromDOM() {
+      // Create an object to store the certificate data
+      const data = {};
+      
+      // Check if we're in the result page by looking for table values
+      const tableRows = document.querySelectorAll('table tr');
+      if (tableRows.length < 3) return null; // Not enough rows, probably not the right page
+      
+      // Try to find and extract data from the DOM
+      try {
+        for (const row of tableRows) {
+          const cells = row.querySelectorAll('td');
+          if (cells.length >= 2) {
+            const label = cells[0].textContent.trim().replace(':', '').toLowerCase();
+            const value = cells[1].textContent.trim();
+            
+            // Map the labels to our expected properties
+            if (label.includes('cognome')) data.cognome = value;
+            else if (label.includes('nome')) data.nome = value;
+            else if (label.includes('data di nascita')) data.data_nascita = value;
+            else if (label.includes('luogo di nascita')) data.luogo_nascita = value;
+            else if (label.includes('nazione di nascita')) data.nazione_nascita = value;
+            else if (label.includes('matricola')) data.matricola = value;
+            else if (label.includes('data esame')) data.data_esame = value;
+            else if (label.includes('sede esame')) data.sede_esame = value;
+            else if (label.includes('livello')) data.livello = value;
+            else if (label.includes('risultato')) data.risultato = value;
+          }
+        }
+        
+        // Check if we found any data
+        if (Object.keys(data).length > 0) {
+          return data;
+        }
+      } catch (e) {
+        console.error('Error extracting data from DOM:', e);
+      }
+      
+      return null;
+    }
+
+    // Base64 encoded logo
+    const universityLogoBase64 = 'university-logo.png';
+
+    function generatePDF(certificateData) {
+      try {
+        const { jsPDF } = window.jspdf;
+        
+        // Create a new PDF document in landscape A4
+        const doc = new jsPDF({
+          orientation: 'landscape', // Set to landscape
+          unit: 'mm',
+          format: [297, 210] // A4 dimensions for landscape (Width x Height)
+        });
+        
+        // Set margins
+        const margin = {
+          top: 15,
+          right: 15,
+          bottom: 15,
+          left: 15
+        };
+        
+        // Calculate content width (Page Width - Left Margin - Right Margin)
+        const contentWidth = 297 - margin.left - margin.right;
+        const pageHeight = 210;
+        
+        // Add logo
+        const logoWidth = 70;
+        const logoHeight = 22;
+        doc.addImage(universityLogoBase64, 'PNG', margin.left, margin.top, logoWidth, logoHeight);
+        
+        // Add header text (right aligned)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Esito controllo certificazione', 297 - margin.right, margin.top + 10, { align: 'right' });
+        
+        // Add date
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const currentDate = new Date();
+        const dateStr = currentDate.toLocaleDateString('it-IT') + ' ' + 
+                       currentDate.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        doc.text('Data controllo: ' + dateStr, 297 - margin.right, margin.top + 20, { align: 'right' });
+        
+        // Add table with certificate data
+        const startY = margin.top + 35; // Position table below header
+        const tableData = [
+          ['Cognome:', certificateData.cognome || ''],
+          ['Nome:', certificateData.nome || ''],
+          ['Data di nascita:', certificateData.data_nascita || ''],
+          ['Luogo di nascita:', certificateData.luogo_nascita || ''],
+          ['Nazione di nascita:', certificateData.nazione_nascita || ''],
+          ['Matricola:', certificateData.matricola || ''],
+          ['Data esame:', certificateData.data_esame || ''],
+          ['Sede esame:', certificateData.sede_esame || ''],
+          ['Livello:', certificateData.livello || ''],
+          ['Risultato:', certificateData.risultato || '']
+        ];
+        
+        doc.autoTable({
+          startY: startY,
+          body: tableData,
+          theme: 'grid',
+          styles: {
+            cellPadding: 3,
+            fontSize: 10,
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0],
+            halign: 'left'
+          },
+          columnStyles: {
+            0: {
+              fontStyle: 'bold',
+              cellWidth: 50 // Adjusted slightly for landscape
+            },
+            1: {
+              cellWidth: 'auto' // Let this fill remaining space
+            }
+          },
+          margin: { left: margin.left, right: margin.right },
+          didDrawCell: null
+        });
+        
+        // Add note
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(9);
+
+        // Add footer
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        
+        // Footer position near bottom of landscape page
+        const footerY = pageHeight - margin.bottom - 18; // Positioned relative to bottom margin
+        doc.text('Via del Torrione, 95', margin.left, footerY, { align: 'left' });
+        doc.text('89125 Reggio Calabria (RC) Italy', margin.left, footerY + 4, { align: 'left' });
+        doc.text('Tel. 0965 1655160.', margin.left, footerY + 8, { align: 'left' });
+        doc.text('cecoi@unidarc.it', margin.left, footerY + 12, { align: 'left' });
+        doc.text('P.IVA 01040947082', margin.left, footerY + 16, { align: 'left' });
+        
+        // Save the PDF
+        const filename = `Certificazione_${certificateData.cognome}_${certificateData.nome}.pdf`;
+        doc.save(filename);
+        
+        document.getElementById('loadingMessage').textContent = 'PDF generato con successo!';
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        document.getElementById('loadingMessage').innerHTML = 'Errore durante la generazione del PDF: ' + error.message + '<br>Si prega di utilizzare lo screenshot della pagina.';
+      }
+    }
+  </script>
+</body>
+</html> 

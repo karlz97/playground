@@ -532,7 +532,7 @@ text-transform: uppercase;*/
                 <!-- Certificate data will be displayed here -->
               </div>
               <br><br>
-              <a href="#" id="printLink" target="_blank">Stampa esito</a><br>
+              <a href="#" id="printLink">Stampa esito</a><br>
               <a href="index.html">Controlla altro nominativo</a>
 
               <br><br>
@@ -544,6 +544,9 @@ text-transform: uppercase;*/
                 const certificateData = JSON.parse(sessionStorage.getItem('certificateData'));
                 
                 if (certificateData) {
+                  // Save certificate data to sessionStorage again to ensure it's available
+                  sessionStorage.setItem('certificateData', JSON.stringify(certificateData));
+                  
                   // Display certificate data
                   document.getElementById('certificateResult').innerHTML = `
                     Certificazione trovata. Di seguito il risultato:
@@ -605,12 +608,8 @@ text-transform: uppercase;*/
                       a 15, l'Esame della Sessione successiva comprenderà tutte le quattro discipline.</p>
                   `;
                   
-                  // Update print link with certificate ID if available
-                  if (certificateData.id) {
-                    document.getElementById('printLink').href = `print.html?id=${certificateData.id}`;
-                  } else {
-                    document.getElementById('printLink').style.display = 'none';
-                  }
+                  // Always show print link
+                  document.getElementById('printLink').href = 'print.html?auto=true';
                 } else {
                   // No certificate data found
                   document.getElementById('certificateResult').innerHTML = `
