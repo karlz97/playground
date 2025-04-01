@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Certificate Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    
+    h1, h2 {
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background: #333;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background: #555;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .edit-btn {
+      background: #4CAF50;
+    }
+    
+    .delete-btn {
+      background: #f44336;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    
+    .alert-success {
+      background-color: #dff0d8;
+      border: 1px solid #d6e9c6;
+      color: #3c763d;
+    }
+    
+    .alert-danger {
+      background-color: #f2dede;
+      border: 1px solid #ebccd1;
+      color: #a94442;
+    }
+    
+    .nav {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Form -->
+  <div id="login-container" class="login-container">
+    <h2>Admin Login</h2>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit">Login</button>
+      <p id="login-message" class="alert alert-danger hidden"></p>
+    </form>
+  </div>
+  
+  <!-- Admin Panel -->
+  <div id="admin-container" class="container hidden">
+    <div class="nav">
+      <h1>Certificate Management</h1>
+      <button id="logout-btn">Logout</button>
+    </div>
+    
+    <div id="alert-container"></div>
+    
+    <button id="add-certificate-btn">Add New Certificate</button>
+    
+    <!-- Certificate Form -->
+    <div id="certificate-form-container" class="hidden">
+      <h2 id="form-title">Add New Certificate</h2>
+      <form id="certificate-form">
+        <input type="hidden" id="certificate-id">
+        
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="cert-username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="text" id="cert-password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="certificato">Certificate Number</label>
+          <input type="text" id="certificato" name="certificato" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="cognome">Cognome</label>
+          <input type="text" id="cognome" name="cognome" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" name="nome" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="data_nascita">Data di Nascita</label>
+          <input type="text" id="data_nascita" name="data_nascita" placeholder="DD/MM/YYYY" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="luogo_nascita">Luogo di Nascita</label>
+          <input type="text" id="luogo_nascita" name="luogo_nascita" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="nazione_nascita">Nazione di Nascita</label>
+          <input type="text" id="nazione_nascita" name="nazione_nascita" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="matricola">Matricola</label>
+          <input type="text" id="matricola" name="matricola" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="data_esame">Data Esame</label>
+          <input type="text" id="data_esame" name="data_esame" placeholder="DD/MM/YYYY" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="sede_esame">Sede Esame</label>
+          <input type="text" id="sede_esame" name="sede_esame" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="livello">Livello</label>
+          <select id="livello" name="livello" required>
+            <option value="">Select Level</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="risultato">Risultato</label>
+          <input type="text" id="risultato" name="risultato" required>
+        </div>
+        
+        <button type="submit">Save Certificate</button>
+        <button type="button" id="cancel-btn">Cancel</button>
+      </form>
+    </div>
+    
+    <!-- Certificates Table -->
+    <div id="certificates-container">
+      <h2>All Certificates</h2>
+      <table id="certificates-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Certificate No.</th>
+            <th>Cognome</th>
+            <th>Nome</th>
+            <th>Matricola</th>
+            <th>Livello</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="certificates-list">
+          <!-- Certificates will be listed here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <script>
+    // DOM Elements
+    const loginContainer = document.getElementById('login-container');
+    const adminContainer = document.getElementById('admin-container');
+    const loginForm = document.getElementById('login-form');
+    const loginMessage = document.getElementById('login-message');
+    const logoutBtn = document.getElementById('logout-btn');
+    const addCertificateBtn = document.getElementById('add-certificate-btn');
+    const certificateFormContainer = document.getElementById('certificate-form-container');
+    const certificateForm = document.getElementById('certificate-form');
+    const formTitle = document.getElementById('form-title');
+    const certificateId = document.getElementById('certificate-id');
+    const certificatesList = document.getElementById('certificates-list');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const alertContainer = document.getElementById('alert-container');
+    
+    // API URL
+    const API_URL = '/api';
+    
+    // Check if user is logged in
+    function checkAuth() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.isAdmin) {
+        loginContainer.classList.add('hidden');
+        adminContainer.classList.remove('hidden');
+        loadCertificates();
+      } else {
+        loginContainer.classList.remove('hidden');
+        adminContainer.classList.add('hidden');
+      }
+    }
+    
+    // Login Form Submit Handler
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          loginMessage.classList.add('hidden');
+          checkAuth();
+        } else {
+          loginMessage.textContent = data.message;
+          loginMessage.classList.remove('hidden');
+        }
+      } catch (error) {
+        loginMessage.textContent = 'An error occurred. Please try again.';
+        loginMessage.classList.remove('hidden');
+        console.error('Login error:', error);
+      }
+    });
+    
+    // Logout Button Click Handler
+    logoutBtn.addEventListener('click', function() {
+      localStorage.removeItem('user');
+      checkAuth();
+    });
+    
+    // Add Certificate Button Click Handler
+    addCertificateBtn.addEventListener('click', function() {
+      formTitle.textContent = 'Add New Certificate';
+      certificateId.value = '';
+      certificateForm.reset();
+      certificateFormContainer.classList.remove('hidden');
+      certificatesList.classList.add('hidden');
+      addCertificateBtn.classList.add('hidden');
+    });
+    
+    // Cancel Button Click Handler
+    cancelBtn.addEventListener('click', function() {
+      certificateFormContainer.classList.add('hidden');
+      certificatesList.classList.remove('hidden');
+      addCertificateBtn.classList.remove('hidden');
+    });
+    
+    // Certificate Form Submit Handler
+    certificateForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = {
+        username: document.getElementById('cert-username').value,
+        password: document.getElementById('cert-password').value,
+        certificato: document.getElementById('certificato').value,
+        cognome: document.getElementById('cognome').value,
+        nome: document.getElementById('nome').value,
+        data_nascita: document.getElementById('data_nascita').value,
+        luogo_nascita: document.getElementById('luogo_nascita').value,
+        nazione_nascita: document.getElementById('nazione_nascita').value,
+        matricola: document.getElementById('matricola').value,
+        data_esame: document.getElementById('data_esame').value,
+        sede_esame: document.getElementById('sede_esame').value,
+        livello: document.getElementById('livello').value,
+        risultato: document.getElementById('risultato').value
+      };
+      
+      try {
+        let url = `${API_URL}/certificates`;
+        let method = 'POST';
+        
+        // If certificateId has a value, we're updating an existing certificate
+        if (certificateId.value) {
+          url = `${API_URL}/certificates/${certificateId.value}`;
+          method = 'PUT';
+        }
+        
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showAlert(data.message, 'success');
+          certificateFormContainer.classList.add('hidden');
+          addCertificateBtn.classList.remove('hidden');
+          loadCertificates();
+        } else {
+          showAlert(data.message, 'danger');
+        }
+      } catch (error) {
+        showAlert('An error occurred. Please try again.', 'danger');
+        console.error('Save certificate error:', error);
+      }
+    });
+    
+    // Load Certificates
+    async function loadCertificates() {
+      try {
+        const response = await fetch(`${API_URL}/certificates`);
+        const data = await response.json();
+        
+        if (data.success) {
+          // Clear certificates list
+          certificatesList.innerHTML = '';
+          
+          // Add certificates to the table
+          data.certificates.forEach(cert => {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+              <td>${cert.id}</td>
+              <td>${cert.certificato}</td>
+              <td>${cert.cognome}</td>
+              <td>${cert.nome}</td>
+              <td>${cert.matricola}</td>
+              <td>${cert.livello}</td>
+              <td class="actions">
+                <button class="edit-btn" data-id="${cert.id}">Edit</button>
+                <button class="delete-btn" data-id="${cert.id}">Delete</button>
+              </td>
+            `;
+            
+            certificatesList.appendChild(row);
+          });
+          
+          // Add event listeners to edit buttons
+          document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              editCertificate(id);
+            });
+          });
+          
+          // Add event listeners to delete buttons
+          document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              deleteCertificate(id);
+            });
+          });
+          
+          certificatesList.classList.remove('hidden');
+        } else {
+          showAlert(data.message, 'danger');
+        }
+      } catch (error) {
+        showAlert('An error occurred while loading certificates.', 'danger');
+        console.error('Load certificates error:', error);
+      }
+    }
+    
+    // Edit Certificate
+    async function editCertificate(id) {
+      try {
+        const response = await fetch(`${API_URL}/certificates/${id}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          const cert = data.certificate;
+          
+          // Set form title and certificate ID
+          formTitle.textContent = 'Edit Certificate';
+          certificateId.value = cert.id;
+          
+          // Fill form with certificate data
+          document.getElementById('cert-username').value = cert.username;
+          document.getElementById('cert-password').value = cert.password;
+          document.getElementById('certificato').value = cert.certificato;
+          document.getElementById('cognome').value = cert.cognome;
+          document.getElementById('nome').value = cert.nome;
+          document.getElementById('data_nascita').value = cert.data_nascita;
+          document.getElementById('luogo_nascita').value = cert.luogo_nascita;
+          document.getElementById('nazione_nascita').value = cert.nazione_nascita;
+          document.getElementById('matricola').value = cert.matricola;
+          document.getElementById('data_esame').value = cert.data_esame;
+          document.getElementById('sede_esame').value = cert.sede_esame;
+          document.getElementById('livello').value = cert.livello;
+          document.getElementById('risultato').value = cert.risultato;
+          
+          // Show form
+          certificateFormContainer.classList.remove('hidden');
+          certificatesList.classList.add('hidden');
+          addCertificateBtn.classList.add('hidden');
+        } else {
+          showAlert(data.message, 'danger');
+        }
+      } catch (error) {
+        showAlert('An error occurred while loading the certificate.', 'danger');
+        console.error('Edit certificate error:', error);
+      }
+    }
+    
+    // Delete Certificate
+    async function deleteCertificate(id) {
+      if (confirm('Are you sure you want to delete this certificate?')) {
+        try {
+          const response = await fetch(`${API_URL}/certificates/${id}`, {
+            method: 'DELETE'
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            showAlert(data.message, 'success');
+            loadCertificates();
+          } else {
+            showAlert(data.message, 'danger');
+          }
+        } catch (error) {
+          showAlert('An error occurred while deleting the certificate.', 'danger');
+          console.error('Delete certificate error:', error);
+        }
+      }
+    }
+    
+    // Show Alert
+    function showAlert(message, type) {
+      alertContainer.innerHTML = `
+        <div class="alert alert-${type}">
+          ${message}
+        </div>
+      `;
+      
+      // Clear alert after 5 seconds
+      setTimeout(() => {
+        alertContainer.innerHTML = '';
+      }, 5000);
+    }
+    
+    // Check authentication when page loads
+    document.addEventListener('DOMContentLoaded', checkAuth);
+  </script>
+</body>
+</html> 

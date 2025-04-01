@@ -1,22 +1,12 @@
 {
-  "name": "copyofdantealighieri",
+  "name": "certificate-verification-system",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Certificate Verification System with backend API",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "format:html": "node format-html.js"
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@prettier/plugin-xml": "^3.3.1",
-    "html-minifier": "^4.0.0",
-    "js-beautify": "^1.14.11",
-    "prettier": "^3.5.3",
-    "prettier-plugin-organize-attributes": "^1.0.0"
-  }
+  "license": "ISC"
 }
