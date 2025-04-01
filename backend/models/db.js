@@ -108,6 +108,58 @@ const initDb = () => {
       console.error('Error creating certificates table:', err.message);
     } else {
       console.log('Certificates table initialized or already exists');
+      
+      // Add a sample certificate if none exists
+      db.get('SELECT * FROM certificates LIMIT 1', (err, row) => {
+        if (err) {
+          console.error('Error checking certificates:', err.message);
+        } else if (!row) {
+          // Insert a sample certificate
+          const sampleCertificate = {
+            username: 'test',
+            password: 'test123',
+            certificato: 'CERT001',
+            cognome: 'Rossi',
+            nome: 'Mario',
+            data_nascita: '01/01/1980',
+            luogo_nascita: 'Roma',
+            nazione_nascita: 'Italia',
+            matricola: 'MAT001',
+            data_esame: '15/06/2023',
+            sede_esame: 'Reggio Calabria',
+            livello: 'B2',
+            risultato: 'SUPERATO'
+          };
+          
+          db.run(`INSERT INTO certificates 
+            (username, password, certificato, cognome, nome, data_nascita, luogo_nascita, 
+            nazione_nascita, matricola, data_esame, sede_esame, livello, risultato) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              sampleCertificate.username,
+              sampleCertificate.password,
+              sampleCertificate.certificato,
+              sampleCertificate.cognome,
+              sampleCertificate.nome,
+              sampleCertificate.data_nascita,
+              sampleCertificate.luogo_nascita,
+              sampleCertificate.nazione_nascita,
+              sampleCertificate.matricola,
+              sampleCertificate.data_esame,
+              sampleCertificate.sede_esame,
+              sampleCertificate.livello,
+              sampleCertificate.risultato
+            ],
+            (err) => {
+              if (err) {
+                console.error('Error inserting sample certificate:', err.message);
+              } else {
+                console.log('Sample certificate added successfully');
+              }
+            }
+          );
+        }
+      });
     }
   });
 };

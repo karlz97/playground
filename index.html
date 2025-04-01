@@ -712,21 +712,45 @@ text-transform: uppercase;*/
                 var username = document.iscrizioneform.username.value;
                 var password = document.iscrizioneform.password.value;
                 var certificato = document.iscrizioneform.certificato.value;
-                if (username == "") {
-                  flag_stop = 1;
+
+                if(username == '') {
                   alert("Inserisci correttamente l'username.");
                   document.iscrizioneform.username.focus();
-                } else if (password == "") {
-                  flag_stop = 1;
+                } else if(password == '') {
                   alert("Inserisci correttamente la password.");
                   document.iscrizioneform.password.focus();
-                } else if (certificato == "") {
-                  flag_stop = 1;
+                } else if(certificato == '') {
                   alert("Inserisci correttamente il numero di certificato.");
                   document.iscrizioneform.certificato.focus();
                 } else {
-                  document.iscrizioneform.submit();
-                  /*alert("VA BENE");*/
+                  // Send verification request to backend
+                  fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      username: username,
+                      password: password,
+                      certificato: certificato
+                    })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.success) {
+                      // Store certificate data in sessionStorage
+                      sessionStorage.setItem('certificateData', JSON.stringify(data.certificate));
+                      // Redirect to result page
+                      window.location.href = 'result.html';
+                    } else {
+                      // Show error message
+                      document.getElementById('error-message').style.display = 'block';
+                    }
+                  })
+                  .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('error-message').style.display = 'block';
+                  });
                 }
               }
             </script>
@@ -737,14 +761,17 @@ text-transform: uppercase;*/
             ></div>
             <form
               name="iscrizioneform"
-              action="https://www.unistrada.it/component/documenti?view=controllo/"
+              onsubmit="event.preventDefault(); Verifica_Form();"
               method="POST"
-              enctype="multipart/form-data"
             >
               <br /><br />
               <font style="line-height: 30px" size="5">
                 <center>Controllo Certificazioni</center>
               </font>
+
+              <div id="error-message" style="display:none; color: red; text-align: center; margin: 10px 0;">
+                Certificazione non trovata. Inserisci nuovamente i codici per ulteriore verifica. Scrivere a cecol@unidarc.it.
+              </div>
               <br />
               <table
                 style="
