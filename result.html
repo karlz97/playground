@@ -538,6 +538,8 @@ text-transform: uppercase;*/
               <br><br>
             </form>
 
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+            <script src="https://unpkg.com/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.js"></script>
             <script>
               document.addEventListener('DOMContentLoaded', function() {
                 // Get certificate data from sessionStorage
@@ -608,8 +610,11 @@ text-transform: uppercase;*/
                       a 15, l'Esame della Sessione successiva comprenderà tutte le quattro discipline.</p>
                   `;
                   
-                  // Always show print link
-                  document.getElementById('printLink').href = 'print.html?auto=true';
+                  // Add click handler for PDF download
+                  document.getElementById('printLink').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    generatePDF(certificateData);
+                  });
                 } else {
                   // No certificate data found
                   document.getElementById('certificateResult').innerHTML = `
@@ -620,6 +625,131 @@ text-transform: uppercase;*/
                   document.getElementById('printLink').style.display = 'none';
                 }
               });
+              
+              const universityLogo = 'university-logo.png';
+
+              function generatePDF(certificateData) {
+                try {
+                  const { jsPDF } = window.jspdf;
+                  
+                  // Create a new PDF document in landscape A4
+                  const doc = new jsPDF({
+                    orientation: 'landscape', // Set to landscape
+                    unit: 'mm',
+                    format: 'a4'
+                  });
+                  
+                  // Set smaller margins
+                  const margin = {
+                    top: 10,
+                    right: 10,
+                    bottom: 10,
+                    left: 10
+                  };
+                  
+                  // Calculate content width (Page Width - Left Margin - Right Margin)
+                  const contentWidth = 297 - margin.left - margin.right;
+                  const pageHeight = 210;
+                  
+                  // Add logo
+                  const logoWidth = 77.25;
+                  const logoHeight = 30;
+                  doc.addImage(universityLogo, 'PNG', margin.left, margin.top, logoWidth, logoHeight);
+                  
+                  // Add header text (right aligned)
+                  doc.setFont('times', 'bold');
+                  doc.setFontSize(11);
+                  doc.text('Esito controllo certificazione', 297 - margin.right, margin.top, { align: 'right' });
+                  
+                  // Add date
+                  const currentDate = new Date();
+                  const dateStr = currentDate.toLocaleDateString('it-IT') + ' ' + 
+                                 currentDate.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                  
+                  // Define common table styles
+                  const tableStyles = {
+                    font: 'times',
+                    fontSize: 12,
+                    lineWidth: 0.1,
+                    lineColor: [0, 0, 0],
+                    halign: 'left',
+                    cellPadding: 1,
+                    rowHeight: 3,
+                    minCellHeight: 2
+                  };
+                  
+                  // Create table with single column layout
+                  const startY = margin.top + 33; // Position table below header
+                  
+                  // First create the data row for "Data controllo" separately
+                  doc.autoTable({
+                    startY: startY,
+                    body: [['Data controllo: ' + dateStr]],
+                    theme: 'plain',
+                    styles: tableStyles,
+                    margin: { left: margin.left, right: margin.right }
+                  });
+                  
+                  // Then create the main certificate data table with single column format
+                  const tableData = [
+                    ['Cognome: ' + (certificateData.cognome || '')],
+                    ['Nome: ' + (certificateData.nome || '')],
+                    ['Data di nascita: ' + (certificateData.data_nascita || '')],
+                    ['Luogo di nascita: ' + (certificateData.luogo_nascita || '')],
+                    ['Nazione di nascita: ' + (certificateData.nazione_nascita || '')],
+                    ['Matricola: ' + (certificateData.matricola || '')],
+                    ['Data esame: ' + (certificateData.data_esame || '')],
+                    ['Sede esame: ' + (certificateData.sede_esame || '')],
+                    ['Livello: ' + (certificateData.livello || '')],
+                    ['Risultato: ' + (certificateData.risultato || '')]
+                  ];
+                  
+                  const previousAutoTable = doc.previousAutoTable;
+                  const newStartY = previousAutoTable.finalY + 7;
+                  
+                  doc.autoTable({
+                    startY: newStartY,
+                    body: tableData,
+                    theme: 'plain',
+                    styles: tableStyles,
+                    margin: { left: margin.left, right: margin.right }
+                  });
+                  
+                  // Add footer
+                  doc.setFont('times', 'normal');
+                  doc.setFontSize(9);
+                  
+                  // Footer position near bottom of landscape page
+                  const footerY = pageHeight - margin.bottom - 30; // Positioned relative to bottom margin
+                  doc.text('Via del Torrione, 95', margin.left, footerY, { align: 'left' });
+                  doc.text('89125 Reggio Calabria (RC) Italy', margin.left, footerY + 4, { align: 'left' });
+                  doc.text('Tel. 0965 1655160.', margin.left, footerY + 8, { align: 'left' });
+                  doc.text('cecoi@unidarc.it', margin.left, footerY + 12, { align: 'left' });
+                  doc.text('P.IVA 01040947082', margin.left, footerY + 16, { align: 'left' });
+                  
+                  // Save the PDF
+                  const filename = `Certificazione_${certificateData.cognome}_${certificateData.nome}.pdf`;
+                  doc.save(filename);
+                  
+                  // Remove the message after 3 seconds
+                  setTimeout(() => {
+                    successMessageDiv.remove();
+                  }, 3000);
+                } catch (error) {
+                  console.error('Error generating PDF:', error);
+                  
+                  // Show error message
+                  const errorMessageDiv = document.createElement('div');
+                  errorMessageDiv.innerHTML = 'Errore durante la generazione del PDF: ' + error.message + '<br>Si prega di utilizzare lo screenshot della pagina.';
+                  errorMessageDiv.style.color = 'red';
+                  errorMessageDiv.style.textAlign = 'center';
+                  errorMessageDiv.style.marginTop = '10px';
+                  
+                  // Add it after the printLink
+                  const printLink = document.getElementById('printLink');
+                  printLink.parentNode.insertBefore(errorMessageDiv, printLink.nextSibling);
+                }
+              }
             </script>
 
           </div>
