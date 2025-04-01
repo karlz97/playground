@@ -1,0 +1,27 @@
+{
+  "name": "Certificate Verification System",
+  "description": "A web-based system for verifying certificates",
+  "repository": "https://github.com/username/certificate-verification-system",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "certificate", "verification"],
+  "addons": ["heroku-postgresql:mini"],
+  "env": {
+    "JWT_SECRET": {
+      "description": "A secret key for JWT authentication",
+      "generator": "secret"
+    },
+    "ADMIN_USERNAME": {
+      "description": "Admin username for the panel",
+      "value": "admin"
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Admin password for the panel",
+      "value": "admin123"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+} 
