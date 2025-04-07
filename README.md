@@ -2,83 +2,79 @@
 
 A web-based system for verifying certificates and managing certification data.
 
-## Deployment to Heroku
+## Deployment
 
-Follow these steps to deploy the application to Heroku:
+Follow these steps to deploy the application:
 
 ### Prerequisites
 
-1. Create a [Heroku account](https://signup.heroku.com/) if you don't have one
-2. Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
-3. Login to Heroku from your terminal:
-   ```
-   heroku login
-   ```
+1. Node.js (v14 or higher)
+2. npm (Node Package Manager)
 
 ### Deployment Steps
 
-1. Clone this repository (if you haven't already)
+1. Clone this repository
    ```
    git clone <repository-url>
    cd <repository-directory>
    ```
 
-2. Install dependencies locally (optional, good for testing)
+2. Install dependencies
    ```
    npm install
    cd backend && npm install && cd ..
    ```
 
-3. Create a new Heroku app
+3. Set up environment variables
+   Create a `.env` file in the backend directory with the following content:
    ```
-   heroku create your-app-name
-   ```
-
-4. Add the Heroku PostgreSQL add-on (to replace SQLite in production)
-   ```
-   heroku addons:create heroku-postgresql:mini
-   ```
-
-5. Set environment variables
-   ```
-   heroku config:set JWT_SECRET=your_jwt_secret_key
-   heroku config:set ADMIN_USERNAME=your_admin_username
-   heroku config:set ADMIN_PASSWORD=your_secure_password
+   PORT=3000
+   ADMIN_USERNAME=your_admin_username
+   ADMIN_PASSWORD=your_secure_password
+   JWT_SECRET=your_jwt_secret_key
    ```
 
-6. Deploy to Heroku
+4. Initialize the database
    ```
-   git push heroku main
-   ```
-   
-   Note: The `heroku-postbuild` script in package.json will automatically run `npm install` in the backend directory.
-
-7. Initialize the database (if needed)
-   ```
-   heroku run node backend/models/db.js
+   node backend/models/db.js
    ```
 
-8. Open your app in the browser
+5. Start the server
    ```
-   heroku open
+   cd backend && npm start
    ```
 
 ### Important Notes
 
-- The application uses SQLite locally but PostgreSQL on Heroku.
-- Make sure all environment variables are properly set in Heroku dashboard or via CLI.
-- If you make changes to the database schema, you may need to reset the database:
-  ```
-  heroku pg:reset DATABASE --confirm your-app-name
-  heroku run node backend/models/db.js
-  ```
+- The application uses SQLite for data storage
+- The SQLite database file will be created at `backend/database.sqlite`
+- Make sure to regularly backup the database file
+- For production deployment, consider setting up:
+  - A process manager (like PM2) to keep the application running
+  - HTTPS for secure communication
+  - Regular database backups
+  - Proper file permissions for the database file
+
+### Database Management
+
+- The database file is located at `backend/database.sqlite`
+- To backup the database, simply copy the database file
+- To restore from a backup, stop the server, replace the database file, and restart the server
+
+### Security Recommendations
+
+1. Change the default admin credentials
+2. Use a strong JWT secret
+3. Set up HTTPS
+4. Implement rate limiting
+5. Regular security updates
+6. Proper file permissions for the database
 
 ### Troubleshooting
 
-- If you encounter issues, check the logs:
-  ```
-  heroku logs --tail
-  ```
-- Ensure your Procfile is correctly set up (`web: npm start`)
-- Verify that your package.json scripts are configured properly
-- If you get "Application Error" after deployment, check if all environment variables are set correctly 
+- If you encounter database errors, check:
+  - File permissions on the database file
+  - Available disk space
+  - Database file is not corrupted
+- For application errors, check the server logs
+- Make sure all environment variables are properly set 

@@ -13,45 +13,28 @@ dotenv.config();
 dbSetup.initDb();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from parent directory (for the HTML files)
-app.use(express.static(path.join(__dirname, '..')));
+// Serve static files from the frontend directory
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Serve the original HTML files directory
-app.use('/Controllo certificazioni - UNIDARC_files', 
-  express.static(path.join(__dirname, '..', 'Controllo certificazioni - UNIDARC_files')));
-
-// API Routes
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/certificates', certificateRoutes);
 
-// Serve admin panel
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+// Serve the main HTML file for all other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
-// Serve main page for root path
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ success: false, message: 'Something went wrong!' });
-});
+// Get port from environment variable or use default
+const PORT = process.env.PORT || 3000;
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Running in ${dbSetup.isHeroku ? 'Heroku' : 'local'} environment`);
 }); 
