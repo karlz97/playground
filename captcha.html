@@ -66,6 +66,7 @@
       .captcha-text {
         font-size: 14px;
         color: #000;
+        font-family: Arial, "Microsoft YaHei", "微软雅黑", STXihei, "华文细黑", sans-serif;
       }
 
       .recaptcha-logo {
@@ -113,6 +114,7 @@
       .verification-text {
         font-size: 18px;
         color: #4285f4;
+        font-family: Arial, "Microsoft YaHei", "微软雅黑", STXihei, "华文细黑", sans-serif;
       }
 
       @keyframes spin {
@@ -129,6 +131,7 @@
         margin-top: 5px;
         font-size: 10px;
         color: #555;
+        font-family: Arial, "Microsoft YaHei", "微软雅黑", STXihei, "华文细黑", sans-serif;
       }
 
       .privacy-terms a {
@@ -147,14 +150,14 @@
         <div class="checkbox-wrapper" id="checkboxWrapper">
           <span class="checkmark" id="checkmark">✓</span>
         </div>
-        <span class="captcha-text">I'm not a robot</span>
+        <span class="captcha-text" id="captchaText"></span>
       </div>
       <div class="recaptcha-logo">
         <div>
           <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA logo" />
           <div class="privacy-terms">
-            <a href="#" onclick="return false;">Privacy</a> -
-            <a href="#" onclick="return false;">Terms</a>
+            <a href="#" onclick="return false;" id="privacyLink"></a> -
+            <a href="#" onclick="return false;" id="termsLink"></a>
           </div>
         </div>
       </div>
@@ -162,7 +165,7 @@
 
     <div class="verification-animation" id="verificationAnimation">
       <div class="spinner"></div>
-      <div class="verification-text">Verifying...</div>
+      <div class="verification-text" id="verificationText"></div>
     </div>
 
     <script>
@@ -171,6 +174,62 @@
         const checkboxWrapper = document.getElementById("checkboxWrapper");
         const checkmark = document.getElementById("checkmark");
         const verificationAnimation = document.getElementById("verificationAnimation");
+        const captchaText = document.getElementById("captchaText");
+        const verificationText = document.getElementById("verificationText");
+        const privacyLink = document.getElementById("privacyLink");
+        const termsLink = document.getElementById("termsLink");
+
+        // More robust language detection
+        function detectChinese() {
+          // Check navigator.language
+          const userLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+          
+          // Check if language is explicitly Chinese
+          if (userLang.startsWith('zh') || userLang === 'cn' || userLang === 'zh-cn' || 
+              userLang === 'zh-tw' || userLang === 'zh-hk') {
+            return true;
+          }
+          
+          // Try to detect language from browser accept-language header if possible
+          // This is a fallback and may not work in all browsers
+          try {
+            const languages = navigator.languages || [];
+            for (let i = 0; i < languages.length; i++) {
+              const lang = languages[i].toLowerCase();
+              if (lang.startsWith('zh') || lang === 'cn') {
+                return true;
+              }
+            }
+          } catch (e) {
+            console.log('Error checking navigator.languages:', e);
+          }
+          
+          return false;
+        }
+
+        const isChinese = detectChinese();
+        
+        // Force document charset to ensure proper rendering
+        document.charset = "UTF-8";
+        
+        // Set text based on language
+        const texts = {
+          captcha: isChinese ? "我不是机器人" : "I'm not a robot",
+          verifying: isChinese ? "验证中..." : "Verifying...",
+          privacy: isChinese ? "隐私" : "Privacy",
+          terms: isChinese ? "条款" : "Terms"
+        };
+
+        // Apply texts and ensure proper encoding
+        captchaText.innerHTML = texts.captcha;
+        verificationText.innerHTML = texts.verifying;
+        privacyLink.innerHTML = texts.privacy;
+        termsLink.innerHTML = texts.terms;
+        
+        // Debug language detection
+        console.log('Detected language:', navigator.language || navigator.userLanguage);
+        console.log('Is Chinese:', isChinese);
+        console.log('Displaying text:', texts.captcha);
 
         let isVerified = false;
 
